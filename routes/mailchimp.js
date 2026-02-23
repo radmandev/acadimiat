@@ -117,7 +117,7 @@ function validateSubscriberData(subscriberData) {
  *   }
  * }
  */
-router.post('/mailchimp', async (req, res) => {
+const handleMailchimpWebhook = async (req, res) => {
   try {
     // Get the raw body for signature validation
     let rawBody = '';
@@ -217,7 +217,10 @@ router.post('/mailchimp', async (req, res) => {
       success: false
     });
   }
-});
+};
+
+router.post('/mailchimp', handleMailchimpWebhook);
+router.post('/', handleMailchimpWebhook);
 
 /**
  * GET /webhooks/mailchimp/health

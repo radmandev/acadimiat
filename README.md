@@ -512,7 +512,9 @@ sudo ufw enable
 
 #### 6. Update Mailchimp Webhook URL
 
-1. In Mailchimp, update webhook URL to: `https://api.yourdomain.com/webhooks/mailchimp`
+1. In Mailchimp, use your production webhook URL:
+  - Recommended: `https://acadimiat.rawajtech.com/webhooks/mailchimp`
+  - Compatible alias: `https://acadimiat.rawajtech.com`
 2. Use the production webhook key from your `.env`
 
 #### 7. Monitor Application

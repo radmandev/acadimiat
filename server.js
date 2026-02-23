@@ -40,6 +40,7 @@ app.get('/health', (req, res) => {
 
 // Mailchimp webhook routes
 app.use('/webhooks', mailchimpRoutes);
+app.use('/', mailchimpRoutes);
 
 // 404 handler
 app.use((req, res) => {
