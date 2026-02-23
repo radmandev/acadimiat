@@ -1,0 +1,277 @@
+{
+  "info": {
+    "_postman_id": "mailchimp-bitrix24-integration",
+    "name": "Mailchimp ↔ Bitrix24 Integration",
+    "description": "Test collection for Mailchimp to Bitrix24 webhook integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "Main Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["health"]
+            },
+            "description": "Check if the main server is running and healthy"
+          },
+          "response": []
+        },
+        {
+          "name": "Webhook Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/webhooks/mailchimp/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["webhooks", "mailchimp", "health"]
+            },
+            "description": "Check webhook and Bitrix24 connection status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "item": [
+        {
+          "name": "Create Test Lead (Development Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"subscribe\",\n  \"fired_at\": \"2024-02-23T12:00:00Z\",\n  \"data\": {\n    \"email\": \"john.doe@example.com\",\n    \"list_id\": \"abc123def456\",\n    \"merges\": {\n      \"FNAME\": \"John\",\n      \"LNAME\": \"Doe\",\n      \"PHONE\": \"+1 (555) 123-4567\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/webhooks/mailchimp/test",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["webhooks", "mailchimp", "test"]
+            },
+            "description": "Test creating a lead without using actual Mailchimp webhook (development only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Test Lead - With Phone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"subscribe\",\n  \"fired_at\": \"2024-02-23T12:00:00Z\",\n  \"data\": {\n    \"email\": \"jane.smith@company.com\",\n    \"list_id\": \"abc123def456\",\n    \"merges\": {\n      \"FNAME\": \"Jane\",\n      \"LNAME\": \"Smith\",\n      \"PHONE\": \"+44 (0)20 1234 5678\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/webhooks/mailchimp/test",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["webhooks", "mailchimp", "test"]
+            },
+            "description": "Test creating a lead with phone number"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Test Lead - Minimal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"subscribe\",\n  \"data\": {\n    \"email\": \"minimal@example.com\",\n    \"merges\": {\n      \"FNAME\": \"Test\",\n      \"LNAME\": \"User\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/webhooks/mailchimp/test",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["webhooks", "mailchimp", "test"]
+            },
+            "description": "Test with minimal required fields"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Email Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"subscribe\",\n  \"data\": {\n    \"email\": \"not-an-email\",\n    \"merges\": {\n      \"FNAME\": \"Invalid\",\n      \"LNAME\": \"User\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/webhooks/mailchimp/test",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["webhooks", "mailchimp", "test"]
+            },
+            "description": "Test validation with invalid email (should fail)"
+          },
+          "response": []
+        },
+        {
+          "name": "Missing First Name Test",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"subscribe\",\n  \"data\": {\n    \"email\": \"missing.fname@example.com\",\n    \"merges\": {\n      \"LNAME\": \"User\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/webhooks/mailchimp/test",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["webhooks", "mailchimp", "test"]
+            },
+            "description": "Test validation with missing first name (should fail)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Production Mailchimp Webhook",
+      "item": [
+        {
+          "name": "Mailchimp Webhook (Production)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Mailchimp-Hook-Signature",
+                "value": "sha256=YOUR_WEBHOOK_SIGNATURE_HERE",
+                "type": "text",
+                "description": "Get this from Mailchimp webhook configuration"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"subscribe\",\n  \"fired_at\": \"2024-02-23T12:00:00Z\",\n  \"data\": {\n    \"email\": \"real@mailchimp.com\",\n    \"list_id\": \"abc123def456\",\n    \"merges\": {\n      \"FNAME\": \"Real\",\n      \"LNAME\": \"Subscriber\",\n      \"PHONE\": \"+1 (555) 987-6543\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "https://api.yourdomain.com/webhooks/mailchimp",
+              "protocol": "https",
+              "host": ["api", "yourdomain", "com"],
+              "path": ["webhooks", "mailchimp"]
+            },
+            "description": "This is what Mailchimp will send to your production webhook URL. Update the domain and signature header."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "Wrong Event Type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"unsubscribe\",\n  \"data\": {\n    \"email\": \"test@example.com\",\n    \"merges\": {\n      \"FNAME\": \"Test\",\n      \"LNAME\": \"User\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/webhooks/mailchimp/test",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["webhooks", "mailchimp", "test"]
+            },
+            "description": "Test with non-subscribe event type (should be ignored)"
+          },
+          "response": []
+        },
+        {
+          "name": "404 - Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/nonexistent",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["nonexistent"]
+            },
+            "description": "Test 404 error handling"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "productionUrl",
+      "value": "https://api.yourdomain.com",
+      "type": "string"
+    }
+  ]
+}
