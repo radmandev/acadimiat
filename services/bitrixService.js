@@ -143,14 +143,6 @@ class Bitrix24Service {
       errors.push('Invalid or missing email');
     }
 
-    if (!leadData.firstName || leadData.firstName.trim() === '') {
-      errors.push('First name is required');
-    }
-
-    if (!leadData.lastName || leadData.lastName.trim() === '') {
-      errors.push('Last name is required');
-    }
-
     if (errors.length > 0) {
       throw new Error(`Validation failed: ${errors.join(', ')}`);
     }
@@ -182,11 +174,17 @@ class Bitrix24Service {
    * @returns {Object} Formatted payload for Bitrix24 API
    */
   prepareBitrixPayload(leadData) {
+    const emailPrefix = leadData.email && leadData.email.includes('@')
+      ? leadData.email.split('@')[0]
+      : 'Subscriber';
+    const firstName = (leadData.firstName || '').trim() || 'Mailchimp';
+    const lastName = (leadData.lastName || '').trim() || emailPrefix;
+
     return {
       fields: {
-        TITLE: `${leadData.firstName} ${leadData.lastName}`,
-        NAME: leadData.firstName,
-        LAST_NAME: leadData.lastName,
+        TITLE: `${firstName} ${lastName}`,
+        NAME: firstName,
+        LAST_NAME: lastName,
         EMAIL: [
           {
             VALUE: leadData.email,

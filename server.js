@@ -20,8 +20,15 @@ const mailchimpRoutes = require('./routes/mailchimp');
 // Initialize Express application
 const app = express();
 
+const captureRawBody = (req, res, buf) => {
+  if (buf && buf.length) {
+    req.rawBody = buf.toString('utf8');
+  }
+};
+
 // Middleware for parsing JSON
-app.use(express.json());
+app.use(express.json({ verify: captureRawBody }));
+app.use(express.urlencoded({ extended: true, verify: captureRawBody }));
 
 // Request logging middleware
 app.use((req, res, next) => {

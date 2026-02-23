@@ -58,14 +58,24 @@ function validateWebhookSignature(body, signature) {
  */
 function extractSubscriberData(mailchimpData) {
   const data = mailchimpData.data || {};
-  const mergeFields = data.merges || {};
+  const mergeFields = data.merges || data.merge_fields || {};
+  const flatEmail = mailchimpData['data[email]'] || mailchimpData['data[EMAIL]'];
+  const flatFName = mailchimpData['data[merges][FNAME]'] || mailchimpData['data[merge_fields][FNAME]'];
+  const flatLName = mailchimpData['data[merges][LNAME]'] || mailchimpData['data[merge_fields][LNAME]'];
+  const flatPhone = mailchimpData['data[merges][PHONE]'] || mailchimpData['data[merge_fields][PHONE]'];
+  const flatListId = mailchimpData['data[list_id]'];
+
+  const email = data.email || data.EMAIL || mergeFields.EMAIL || flatEmail || mailchimpData.email || '';
+  const emailPrefix = email.includes('@') ? email.split('@')[0] : 'Subscriber';
+  const firstName = (mergeFields.FNAME || mergeFields.fname || data.FNAME || flatFName || 'Mailchimp').trim();
+  const lastName = (mergeFields.LNAME || mergeFields.lname || data.LNAME || flatLName || emailPrefix).trim();
 
   return {
-    email: data.email || '',
-    firstName: mergeFields.FNAME || '',
-    lastName: mergeFields.LNAME || '',
-    phone: mergeFields.PHONE || '',
-    listId: data.list_id || '',
+    email,
+    firstName: firstName || 'Mailchimp',
+    lastName: lastName || emailPrefix,
+    phone: mergeFields.PHONE || mergeFields.phone || data.PHONE || flatPhone || '',
+    listId: data.list_id || flatListId || '',
     timestamp: new Date().toISOString()
   };
 }
@@ -78,17 +88,14 @@ function extractSubscriberData(mailchimpData) {
  */
 function validateSubscriberData(subscriberData) {
   const errors = [];
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!subscriberData.email || subscriberData.email.trim() === '') {
     errors.push('Email is required');
   }
 
-  if (!subscriberData.firstName || subscriberData.firstName.trim() === '') {
-    errors.push('First name (FNAME) is required');
-  }
-
-  if (!subscriberData.lastName || subscriberData.lastName.trim() === '') {
-    errors.push('Last name (LNAME) is required');
+  if (subscriberData.email && !emailRegex.test(subscriberData.email)) {
+    errors.push('Invalid email format');
   }
 
   return {
@@ -120,11 +127,7 @@ function validateSubscriberData(subscriberData) {
 const handleMailchimpWebhook = async (req, res) => {
   try {
     // Get the raw body for signature validation
-    let rawBody = '';
-    
-    // In Express with body parser, we need to reconstruct raw body
-    // For proper implementation, consider using express-raw-body or bodyParser.raw()
-    rawBody = JSON.stringify(req.body);
+    const rawBody = req.rawBody || JSON.stringify(req.body);
 
     // Log incoming webhook
     logger.info('Mailchimp webhook received', `Type: ${req.body.type}`);
